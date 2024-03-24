@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
+	"secret-management/config/database"
 	"secret-management/internal/di"
 )
 
@@ -14,8 +15,23 @@ func Run() {
 		return
 	}
 
-	//TODO(Rahmat): Add usage envConfig
-	fmt.Printf("%+v", envConfig)
+	conn, err := database.NewPostgresqlDatabase(&envConfig)
+	if err != nil {
+		log.Fatal(fmt.Sprintf("error when connection db: %+v", err))
+		return
+	}
+
+	sql, err := conn.DB()
+	if err != nil {
+		log.Fatal(fmt.Sprintf(err.Error()))
+		return
+	}
+	defer func() {
+		errClose := sql.Close()
+		if errClose != nil {
+			log.Fatal(errClose.Error())
+		}
+	}()
 
 	r := gin.New()
 
