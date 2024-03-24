@@ -15,8 +15,16 @@ type Handlers struct {
 
 func InitializeDependency(router *gin.RouterGroup) (*Handlers, error) {
 	wire.Build(
+		// repository
+
+		// usecase
+
+		// handler
 		handler.NewHealthHandler,
 
+		// bind
+
+		// struct handler
 		wire.Struct(new(Handlers), "*"),
 	)
 
