@@ -9,9 +9,9 @@ import (
 )
 
 func Run() {
-	envConfig, err := initEnv()
+	envConfig, err := GetEnv()
 	if err != nil {
-		log.Fatal("cannot failed read env")
+		log.Fatal(fmt.Sprintf("cannot failed read env. error: %+v", err))
 		return
 	}
 

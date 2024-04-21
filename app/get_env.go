@@ -3,11 +3,12 @@ package app
 import (
 	"github.com/joho/godotenv"
 	"log"
+	"net/url"
 	"os"
 	"secret-management/config"
 )
 
-func initEnv() (config.EnvConfig, error) {
+func GetEnv() (config.EnvConfig, error) {
 	err := godotenv.Load("config/.env")
 	if err != nil {
 		log.Printf("Error when loading env: %+v", err)
@@ -17,7 +18,7 @@ func initEnv() (config.EnvConfig, error) {
 	dbHost := os.Getenv("DB_HOST")
 	dbPort := os.Getenv("DB_PORT")
 	dbUser := os.Getenv("DB_USER")
-	dbPass := os.Getenv("DB_PASSWORD")
+	dbPass := url.QueryEscape(os.Getenv("DB_PASSWORD"))
 	dbName := os.Getenv("DB_NAME")
 
 	envConfig := config.EnvConfig{
