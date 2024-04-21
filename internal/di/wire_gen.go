@@ -9,14 +9,18 @@ package di
 import (
 	"github.com/gin-gonic/gin"
 	"secret-management/internal/handler"
+	"secret-management/internal/usecase"
 )
 
 // Injectors from wire.go:
 
 func InitializeDependency(router *gin.RouterGroup) (*Handlers, error) {
 	healthHandler := handler.NewHealthHandler(router)
+	secretUsecase := usecase.NewSecretUsecase()
+	secretHandler := handler.NewSecretHandler(router, secretUsecase)
 	handlers := &Handlers{
 		HealthHandler: healthHandler,
+		SecretHandler: secretHandler,
 	}
 	return handlers, nil
 }
@@ -25,4 +29,5 @@ func InitializeDependency(router *gin.RouterGroup) (*Handlers, error) {
 
 type Handlers struct {
 	HealthHandler *handler.HealthHandler
+	SecretHandler *handler.SecretHandler
 }
