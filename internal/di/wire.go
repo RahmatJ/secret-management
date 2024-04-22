@@ -6,8 +6,11 @@ package di
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
+	"gorm.io/gorm"
 	"secret-management/internal/domain"
 	"secret-management/internal/handler"
+	"secret-management/internal/helpers"
+	"secret-management/internal/repository"
 	"secret-management/internal/usecase"
 )
 
@@ -16,21 +19,29 @@ type Handlers struct {
 	SecretHandler *handler.SecretHandler
 }
 
-func InitializeDependency(router *gin.RouterGroup) (*Handlers, error) {
+func InitializeDependency(router *gin.RouterGroup, db *gorm.DB) (*Handlers, error) {
 	wire.Build(
 		// repository
+		repository.NewSecretRepository,
 
 		// usecase
 		usecase.NewSecretUsecase,
+
+		// helpers
+		helpers.NewSecretHelpers,
 
 		// handler
 		handler.NewHealthHandler,
 		handler.NewSecretHandler,
 
 		// bind repository
+		wire.Bind(new(domain.SecretRepository), new(*repository.SecretRepository)),
 
 		// bind usecase
 		wire.Bind(new(domain.SecretUsecase), new(*usecase.SecretUsecase)),
+
+		// bind helpers
+		wire.Bind(new(domain.SecretHelpers), new(*helpers.SecretHelpers)),
 
 		// bind handler
 

@@ -1,6 +1,9 @@
 package entities
 
-import "time"
+import (
+	"secret-management/internal/constants"
+	"time"
+)
 
 type SecretManagement struct {
 	Id          string    `json:"id" gorm:"id"`
@@ -9,4 +12,8 @@ type SecretManagement struct {
 	ExpiredDate time.Time `json:"expired_date" gorm:"expired_date"`
 	CreatedAt   time.Time `json:"created_at" gorm:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at" gorm:"updated_at"`
+}
+
+func (s *SecretManagement) TableName() string {
+	return constants.TableName.SecretManagement
 }
