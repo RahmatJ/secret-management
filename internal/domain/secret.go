@@ -3,7 +3,6 @@ package domain
 import (
 	"secret-management/internal/dto"
 	"secret-management/internal/entities"
-	"time"
 )
 
 type SecretUsecase interface {
@@ -12,7 +11,7 @@ type SecretUsecase interface {
 
 type SecretRepository interface {
 	CreateSecret(secret *entities.SecretManagement) error
-	GetSecret(userId string, currentTime time.Time) (*entities.SecretManagement, error)
+	GetSecret(userId string, currentTime string) (*entities.SecretManagement, error)
 }
 
 type SecretHelpers interface {

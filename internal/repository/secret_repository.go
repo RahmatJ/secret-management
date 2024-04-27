@@ -5,7 +5,6 @@ import (
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 	"secret-management/internal/entities"
-	"time"
 )
 
 type SecretRepository struct {
@@ -31,14 +30,14 @@ func (repo *SecretRepository) CreateSecret(secret *entities.SecretManagement) er
 	return nil
 }
 
-func (repo *SecretRepository) GetSecret(userId string, currentTime time.Time) (*entities.SecretManagement, error) {
+func (repo *SecretRepository) GetSecret(userId string, currentTime string) (*entities.SecretManagement, error) {
 	funcName := fmt.Sprintf("%s.GetSecret", repo.name)
 
 	var result entities.SecretManagement
 
 	err := repo.db.Table(result.TableName()).
-		Order("updated_at desc").
-		Where("user_id = ? and expired_date < ?", userId, currentTime).
+		Order("expired_date desc").
+		Where("user_id = ? and expired_date > ?", userId, currentTime).
 		First(&result).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {

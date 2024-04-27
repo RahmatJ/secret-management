@@ -13,7 +13,7 @@ func NewSecretHelpers() *SecretHelpers {
 }
 
 func (s *SecretHelpers) GenerateSecret(length int) string {
-	src := rand.NewSource(time.Now().UnixNano())
+	src := rand.NewSource(time.Now().UTC().UnixNano())
 
 	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_-!@#$%^&*()+=?/>.<,"
 

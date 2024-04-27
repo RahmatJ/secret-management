@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"secret-management/internal/domain"
 	"secret-management/internal/dto"
@@ -23,35 +24,45 @@ func NewSecretUsecase(repository domain.SecretRepository, helpers domain.SecretH
 	}
 }
 
+func generateUUID() string {
+	id := uuid.New()
+	return id.String()
+}
+
 func (uc *SecretUsecase) GetSecretByUserId(userId string) (*dto.GetSecretByUserIdResponse, error) {
 	funcName := fmt.Sprintf("%s.GetSecretByUserId", uc.name)
 
-	currentTime := time.Now()
-	secret, err := uc.repository.GetSecret(userId, currentTime)
+	format := time.RFC3339Nano
+	currentTime := time.Now().UTC()
+	secret, err := uc.repository.GetSecret(userId, currentTime.Format(format))
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("%s.Err", funcName))
 	}
+	result := dto.GetSecretByUserIdResponse{}
 
 	if secret != nil {
-		result := dto.GetSecretByUserIdResponse{}
 		result.FromSecretEntities(secret)
 		return &result, nil
 	}
 
 	apiKey := uc.helpers.GenerateSecret(20)
-	expiredDate := time.Now().Add(30 * 24 * time.Hour)
-
-	_ = entities.SecretManagement{
-		// TODO(Rahmat): add function to generate UUID
-		Id:          "",
+	expiredDate := time.Now().UTC().Add(30 * 24 * time.Hour)
+	id := generateUUID()
+	input := entities.SecretManagement{
+		Id:          id,
 		UserId:      userId,
 		ApiKey:      apiKey,
 		ExpiredDate: expiredDate,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+		CreatedAt:   time.Now().UTC(),
+		UpdatedAt:   time.Now().UTC(),
 	}
 
-	result := dto.GetSecretByUserIdResponse{}
+	err = uc.repository.CreateSecret(&input)
+	if err != nil {
+		return nil, errors.Wrap(err, fmt.Sprintf("%s.Err", funcName))
+	}
+
+	result.FromSecretEntities(&input)
 
 	return &result, nil
 }
