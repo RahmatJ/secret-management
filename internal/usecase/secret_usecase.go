@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"secret-management/config"
 	"secret-management/internal/domain"
 	"secret-management/internal/dto"
 	"secret-management/internal/entities"
@@ -14,13 +15,15 @@ type SecretUsecase struct {
 	name       string
 	repository domain.SecretRepository
 	helpers    domain.SecretHelpers
+	config     config.EnvConfig
 }
 
-func NewSecretUsecase(repository domain.SecretRepository, helpers domain.SecretHelpers) *SecretUsecase {
+func NewSecretUsecase(repository domain.SecretRepository, helpers domain.SecretHelpers, config config.EnvConfig) *SecretUsecase {
 	return &SecretUsecase{
 		name:       "SecretUsecase",
 		repository: repository,
 		helpers:    helpers,
+		config:     config,
 	}
 }
 
@@ -34,6 +37,7 @@ func (uc *SecretUsecase) GetSecretByUserId(userId string) (*dto.GetSecretByUserI
 
 	format := time.RFC3339Nano
 	currentTime := time.Now().UTC()
+
 	secret, err := uc.repository.GetSecret(userId, currentTime.Format(format))
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("%s.Err", funcName))
@@ -46,8 +50,10 @@ func (uc *SecretUsecase) GetSecretByUserId(userId string) (*dto.GetSecretByUserI
 	}
 
 	apiKey := uc.helpers.GenerateSecret(20)
-	expiredDate := time.Now().UTC().Add(30 * 24 * time.Hour)
+	ttl := time.Duration(uc.config.ApiKeyTTL)
+	expiredDate := time.Now().UTC().Add(ttl * time.Second)
 	id := generateUUID()
+
 	input := entities.SecretManagement{
 		Id:          id,
 		UserId:      userId,

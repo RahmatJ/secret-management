@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"secret-management/internal/domain"
+	"secret-management/internal/dto"
 )
 
 type SecretHandler struct {
@@ -32,11 +33,15 @@ func (h SecretHandler) getSecretByUserId(context *gin.Context) {
 }
 
 func (h SecretHandler) validateKey(context *gin.Context) {
-	userId := context.Param("userId")
-	if userId == "" {
+	var payload dto.ValidateUserKey
+	err := context.ShouldBindJSON(&payload)
+	if err != nil {
+		// TODO(Rahmat): add validation error handling
+		log.Print(err.Error())
 		context.JSON(http.StatusBadRequest, gin.H{
-			"data": "userId required",
+			"message": err.Error(),
 		})
+		return
 	}
 
 	context.JSON(http.StatusOK, gin.H{
@@ -52,7 +57,7 @@ func NewSecretHandler(group *gin.RouterGroup, secretUsecase domain.SecretUsecase
 	handlerGroup := group.Group("/secret")
 
 	handlerGroup.GET("/:userId", handler.getSecretByUserId)
-	handlerGroup.POST("/:userId/validate", handler.validateKey)
+	handlerGroup.POST("/validate", handler.validateKey)
 
 	return &handler
 }

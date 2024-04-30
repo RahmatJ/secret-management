@@ -38,7 +38,7 @@ func Run() {
 	api := r.Group("/api")
 	internal := api.Group("/private")
 
-	_, err = di.InitializeDependency(internal, conn)
+	_, err = di.InitializeDependency(internal, conn, envConfig)
 	if err != nil {
 		log.Fatal("cannot init dependency")
 		return

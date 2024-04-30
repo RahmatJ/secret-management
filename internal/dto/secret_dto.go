@@ -11,6 +11,11 @@ type (
 		ApiKey      string    `json:"api_key"`
 		ExpiredDate time.Time `json:"expired_date"`
 	}
+
+	ValidateUserKey struct {
+		UserId string `json:"user_id" binding:"required"`
+		Key    string `json:"key" binding:"required"`
+	}
 )
 
 func (g *GetSecretByUserIdResponse) FromSecretEntities(entities *entities.SecretManagement) {

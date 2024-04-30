@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 	"gorm.io/gorm"
+	"secret-management/config"
 	"secret-management/internal/domain"
 	"secret-management/internal/handler"
 	"secret-management/internal/helpers"
@@ -19,7 +20,7 @@ type Handlers struct {
 	SecretHandler *handler.SecretHandler
 }
 
-func InitializeDependency(router *gin.RouterGroup, db *gorm.DB) (*Handlers, error) {
+func InitializeDependency(router *gin.RouterGroup, db *gorm.DB, config config.EnvConfig) (*Handlers, error) {
 	wire.Build(
 		// repository
 		repository.NewSecretRepository,

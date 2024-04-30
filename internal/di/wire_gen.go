@@ -9,6 +9,7 @@ package di
 import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"secret-management/config"
 	"secret-management/internal/handler"
 	"secret-management/internal/helpers"
 	"secret-management/internal/repository"
@@ -17,11 +18,11 @@ import (
 
 // Injectors from wire.go:
 
-func InitializeDependency(router *gin.RouterGroup, db *gorm.DB) (*Handlers, error) {
+func InitializeDependency(router *gin.RouterGroup, db *gorm.DB, config2 config.EnvConfig) (*Handlers, error) {
 	healthHandler := handler.NewHealthHandler(router)
 	secretRepository := repository.NewSecretRepository(db)
 	secretHelpers := helpers.NewSecretHelpers()
-	secretUsecase := usecase.NewSecretUsecase(secretRepository, secretHelpers)
+	secretUsecase := usecase.NewSecretUsecase(secretRepository, secretHelpers, config2)
 	secretHandler := handler.NewSecretHandler(router, secretUsecase)
 	handlers := &Handlers{
 		HealthHandler: healthHandler,
