@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
+	"secret-management/internal/constants"
 	"secret-management/internal/entities"
 )
 
@@ -49,4 +50,25 @@ func (repo *SecretRepository) GetSecret(userId string, currentTime string) (*ent
 	}
 
 	return &result, nil
+}
+
+func (repo *SecretRepository) GetExpiringSecret(endTime string) ([]entities.SecretManagement, error) {
+	funcName := fmt.Sprintf("%s.GetExpiringSecret", repo.name)
+
+	var result []entities.SecretManagement
+
+	err := repo.db.Table(constants.TableName.SecretManagement).
+		Order("expired_date desc").
+		Where("expired_date < ?", endTime).
+		Find(&result).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+
+	if err != nil {
+		return nil, errors.Wrap(err, fmt.Sprintf("%s.Err", funcName))
+	}
+
+	return result, nil
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"secret-management/config"
+	"secret-management/config/cronConfig"
 	"secret-management/internal/handler"
 	"secret-management/internal/helpers"
 	"secret-management/internal/repository"
@@ -24,9 +25,11 @@ func InitializeDependency(router *gin.RouterGroup, db *gorm.DB, config2 config.E
 	secretHelpers := helpers.NewSecretHelpers()
 	secretUsecase := usecase.NewSecretUsecase(secretRepository, secretHelpers, config2)
 	secretHandler := handler.NewSecretHandler(router, secretUsecase)
+	cronSetup := cronConfig.NewCronSetup(secretUsecase)
 	handlers := &Handlers{
 		HealthHandler: healthHandler,
 		SecretHandler: secretHandler,
+		CronSetup:     cronSetup,
 	}
 	return handlers, nil
 }
@@ -36,4 +39,5 @@ func InitializeDependency(router *gin.RouterGroup, db *gorm.DB, config2 config.E
 type Handlers struct {
 	HealthHandler *handler.HealthHandler
 	SecretHandler *handler.SecretHandler
+	CronSetup     *cronConfig.CronSetup
 }

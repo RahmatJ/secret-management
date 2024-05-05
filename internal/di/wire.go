@@ -8,6 +8,7 @@ import (
 	"github.com/google/wire"
 	"gorm.io/gorm"
 	"secret-management/config"
+	"secret-management/config/cronConfig"
 	"secret-management/internal/domain"
 	"secret-management/internal/handler"
 	"secret-management/internal/helpers"
@@ -18,6 +19,7 @@ import (
 type Handlers struct {
 	HealthHandler *handler.HealthHandler
 	SecretHandler *handler.SecretHandler
+	CronSetup     *cronConfig.CronSetup
 }
 
 func InitializeDependency(router *gin.RouterGroup, db *gorm.DB, config config.EnvConfig) (*Handlers, error) {
@@ -35,6 +37,9 @@ func InitializeDependency(router *gin.RouterGroup, db *gorm.DB, config config.En
 		handler.NewHealthHandler,
 		handler.NewSecretHandler,
 
+		// cron
+		cronConfig.NewCronSetup,
+
 		// bind repository
 		wire.Bind(new(domain.SecretRepository), new(*repository.SecretRepository)),
 
@@ -50,5 +55,5 @@ func InitializeDependency(router *gin.RouterGroup, db *gorm.DB, config config.En
 		wire.Struct(new(Handlers), "*"),
 	)
 
-	return nil, nil
+	return &Handlers{}, nil
 }

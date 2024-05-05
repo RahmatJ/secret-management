@@ -49,6 +49,19 @@ func (h SecretHandler) validateKey(context *gin.Context) {
 	})
 }
 
+func (h SecretHandler) check(context *gin.Context) {
+	err := h.secretUsecase.DailySecretCheck()
+	if err != nil {
+		log.Print(err.Error())
+		context.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{
+		"data": "OK",
+	})
+}
+
 func NewSecretHandler(group *gin.RouterGroup, secretUsecase domain.SecretUsecase) *SecretHandler {
 	handler := SecretHandler{
 		secretUsecase: secretUsecase,
@@ -58,6 +71,8 @@ func NewSecretHandler(group *gin.RouterGroup, secretUsecase domain.SecretUsecase
 
 	handlerGroup.GET("/:userId", handler.getSecretByUserId)
 	handlerGroup.POST("/validate", handler.validateKey)
+	//TODO(Rahmat): Delete this, this only for testing
+	handlerGroup.POST("/check", handler.check)
 
 	return &handler
 }

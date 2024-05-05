@@ -38,11 +38,14 @@ func Run() {
 	api := r.Group("/api")
 	internal := api.Group("/private")
 
-	_, err = di.InitializeDependency(internal, conn, envConfig)
+	handler, err := di.InitializeDependency(internal, conn, envConfig)
 	if err != nil {
 		log.Fatal("cannot init dependency")
 		return
 	}
+
+	//Start Cron
+	handler.CronSetup.Initiate()
 
 	err = r.Run()
 	if err != nil {

@@ -7,11 +7,13 @@ import (
 
 type SecretUsecase interface {
 	GetSecretByUserId(userId string) (*dto.GetSecretByUserIdResponse, error)
+	DailySecretCheck() error
 }
 
 type SecretRepository interface {
 	CreateSecret(secret *entities.SecretManagement) error
 	GetSecret(userId string, currentTime string) (*entities.SecretManagement, error)
+	GetExpiringSecret(endTime string) ([]entities.SecretManagement, error)
 }
 
 type SecretHelpers interface {
